@@ -204,3 +204,4 @@ This project is open-sourced under the [MIT License](LICENSE).
 
 <p align="center">Made with ❤️ by <a href="https://github.com/codewithrikkisaini">@codewithrikkisaini</a></p>
 # -Hotel-Property-Management-System
+# Merahkie-PMS-Lite
