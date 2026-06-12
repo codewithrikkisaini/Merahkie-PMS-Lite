@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-slate-50 font-sans antialiased">
+<body class="h-full font-sans antialiased bg-slate-900 relative selection:bg-indigo-500 selection:text-white">
 
-<div class="min-h-screen flex">
+<div class="min-h-screen flex relative z-10">
 
     {{-- ===== LEFT HERO PANEL ===== --}}
     <div class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 overflow-hidden">
@@ -71,20 +71,28 @@
     </div>
 
     {{-- ===== RIGHT LOGIN FORM ===== --}}
-    <div class="flex flex-1 items-center justify-center p-8 bg-white">
-        <div class="w-full max-w-sm">
+    <div class="flex flex-1 items-center justify-center p-8 bg-slate-50 relative overflow-hidden">
+        
+        {{-- Right side ambient background --}}
+        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-200/50 blur-3xl opacity-60 mix-blend-multiply animate-blob"></div>
+            <div class="absolute top-[40%] -left-[10%] w-[40%] h-[40%] rounded-full bg-purple-200/50 blur-3xl opacity-60 mix-blend-multiply animate-blob animation-delay-2000"></div>
+            <div class="absolute -bottom-[20%] right-[10%] w-[60%] h-[60%] rounded-full bg-blue-200/50 blur-3xl opacity-60 mix-blend-multiply animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div class="w-full max-w-md relative z-10 bg-white/60 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl shadow-2xl border border-white/60">
 
             {{-- Mobile logo --}}
-            <div class="flex items-center gap-2 mb-8 lg:hidden">
-                <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-hotel text-white"></i>
+            <div class="flex items-center justify-center gap-3 mb-8 lg:hidden">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fas fa-hotel text-white text-sm"></i>
                 </div>
-                <span class="text-gray-900 font-bold text-xl">{{ $hotelName }}</span>
+                <span class="text-slate-900 font-extrabold text-2xl tracking-tight">{{ $hotelName }}</span>
             </div>
 
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900">Welcome back</h2>
-                <p class="mt-1.5 text-sm text-gray-500">Sign in to your admin panel</p>
+            <div class="mb-8 text-center sm:text-left">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome back</h2>
+                <p class="mt-2 text-sm text-slate-500 font-medium">Sign in to your admin panel</p>
             </div>
 
             @if($errors->any())
@@ -151,16 +159,22 @@
                 </button>
 
                 {{-- Quick Login Buttons --}}
-                <div class="pt-4 border-t border-slate-100 mt-6">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3 text-center">Quick Login (Demo)</p>
+                <div class="pt-6 mt-8 border-t border-slate-200/60">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Quick Login (Demo)</p>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" onclick="document.getElementById('email').value = 'admin@merahkie.com'; document.getElementById('password').value = '123456'; document.getElementById('login-form').submit();"
-                                class="flex items-center justify-center gap-2 px-3 py-2.5 border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-lg text-xs font-semibold text-slate-700 hover:text-indigo-600 transition-all cursor-pointer">
-                            <i class="fas fa-user-shield text-indigo-500"></i> Login as Admin
+                                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-white/80 border border-slate-200/80 hover:border-indigo-400 hover:bg-indigo-50/50 hover:shadow-md hover:shadow-indigo-500/10 rounded-xl text-xs font-semibold text-slate-700 hover:text-indigo-600 transition-all cursor-pointer group">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                                <i class="fas fa-user-shield text-indigo-600"></i>
+                            </div>
+                            <span>Admin</span>
                         </button>
                         <button type="button" onclick="document.getElementById('email').value = 'receptionist@merahkie.com'; document.getElementById('password').value = '123456'; document.getElementById('login-form').submit();"
-                                class="flex items-center justify-center gap-2 px-3 py-2.5 border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-lg text-xs font-semibold text-slate-700 hover:text-indigo-600 transition-all cursor-pointer">
-                            <i class="fas fa-user text-indigo-500"></i> Login as Staff
+                                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-white/80 border border-slate-200/80 hover:border-purple-400 hover:bg-purple-50/50 hover:shadow-md hover:shadow-purple-500/10 rounded-xl text-xs font-semibold text-slate-700 hover:text-purple-600 transition-all cursor-pointer group">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                                <i class="fas fa-user text-purple-600"></i>
+                            </div>
+                            <span>Staff</span>
                         </button>
                     </div>
                 </div>

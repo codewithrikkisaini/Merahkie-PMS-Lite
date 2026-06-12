@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Reservations</h1>
-        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm">
+        <button wire:click="openModal" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm">
             <i class="fas fa-calendar-plus mr-2"></i> New Reservation
         </button>
     </div>
@@ -12,11 +12,11 @@
             <div class="w-full md:w-96">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by guest name or room..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by guest name or room..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pl-9">
                 </div>
             </div>
             <div class="w-full md:w-48">
-                <select wire:model.live="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <select wire:model.live="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     <option value="">All Statuses</option>
                     <option value="Pending">Pending</option>
                     <option value="Confirmed">Confirmed</option>
@@ -94,4 +94,89 @@
         </div>
         @endif
     </div>
+
+    <!-- Add Reservation Modal -->
+    @if($isModalOpen)
+    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" wire:click="closeModal"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form wire:submit.prevent="store">
+                    <div class="bg-white px-6 py-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Add New Reservation
+                            </h3>
+                            <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="guest_id" class="block text-sm font-medium text-gray-700">Guest <span class="text-red-500">*</span></label>
+                                <select wire:model="guest_id" id="guest_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1">
+                                    <option value="">Select Guest</option>
+                                    @foreach($guests as $guest)
+                                        <option value="{{ $guest->id }}">{{ $guest->name }} ({{ $guest->phone ?? $guest->email }})</option>
+                                    @endforeach
+                                </select>
+                                @error('guest_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label for="room_id" class="block text-sm font-medium text-gray-700">Room <span class="text-red-500">*</span></label>
+                                <select wire:model="room_id" id="room_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1">
+                                    <option value="">Select Room</option>
+                                    @foreach($rooms as $room)
+                                        <option value="{{ $room->id }}">Room {{ $room->room_number }} ({{ $room->roomType->name ?? 'Standard' }})</option>
+                                    @endforeach
+                                </select>
+                                @error('room_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label for="check_in_date" class="block text-sm font-medium text-gray-700">Check-in Date <span class="text-red-500">*</span></label>
+                                    <input type="date" wire:model="check_in_date" id="check_in_date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1">
+                                    @error('check_in_date') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label for="check_out_date" class="block text-sm font-medium text-gray-700">Check-out Date <span class="text-red-500">*</span></label>
+                                    <input type="date" wire:model="check_out_date" id="check_out_date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1">
+                                    @error('check_out_date') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-red-500">*</span></label>
+                                <select wire:model="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Checked-In">Checked-In</option>
+                                    <option value="Checked-Out">Checked-Out</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                @error('status') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Save
+                        </button>
+                        <button type="button" wire:click="closeModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

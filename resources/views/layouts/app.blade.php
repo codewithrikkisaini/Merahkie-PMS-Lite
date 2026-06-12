@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     @stack('styles')
 </head>
-<body class="h-full bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
+<body class="h-full bg-slate-50 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
 
 <div class="flex h-full">
 

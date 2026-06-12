@@ -1,22 +1,22 @@
 {{-- ===== LEFT SIDEBAR ===== --}}
 
 {{-- Desktop Sidebar --}}
-<aside class="hidden lg:flex lg:flex-col fixed inset-y-0 left-0 z-40 bg-slate-900 transition-all duration-300"
+<aside class="hidden lg:flex lg:flex-col fixed inset-y-0 left-0 z-40 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 shadow-2xl transition-all duration-300"
        :class="sidebarOpen ? 'w-64' : 'w-16'">
 
     {{-- Logo --}}
-    <div class="flex h-16 items-center border-b border-slate-800 px-4 shrink-0" :class="sidebarOpen ? 'justify-between' : 'justify-center'">
-        <div x-show="sidebarOpen" class="flex items-center gap-2" x-transition>
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+    <div class="flex h-16 items-center border-b border-white/10 px-4 shrink-0" :class="sidebarOpen ? 'justify-between' : 'justify-center'">
+        <div x-show="sidebarOpen" class="flex items-center gap-3" x-transition>
+            <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <i class="fas fa-hotel text-white text-sm"></i>
             </div>
-            <span class="text-white font-bold text-lg tracking-tight">{{ $hotelName }}</span>
+            <span class="text-white font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">{{ $hotelName }}</span>
         </div>
-        <div x-show="!sidebarOpen" class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center" style="display:none">
+        <div x-show="!sidebarOpen" class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30" style="display:none">
             <i class="fas fa-hotel text-white text-sm"></i>
         </div>
         <button @click="sidebarOpen = !sidebarOpen" x-show="sidebarOpen"
-                class="text-slate-400 hover:text-white p-1 rounded transition-colors">
+                class="text-slate-400 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-all">
             <i class="fas fa-chevron-left text-xs"></i>
         </button>
     </div>
@@ -145,13 +145,13 @@
     </nav>
 
     {{-- Sidebar footer --}}
-    <div class="border-t border-slate-800 px-3 py-3 shrink-0">
+    <div class="border-t border-white/10 px-3 py-4 shrink-0 bg-slate-900/50">
         <div class="flex items-center gap-3" :class="sidebarOpen ? '' : 'justify-center'">
-            <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
-                <span class="text-white text-xs font-bold">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/30">
+                <span class="text-white text-sm font-bold">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
             </div>
             <div x-show="sidebarOpen" x-transition class="min-w-0">
-                <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name ?? '' }}</p>
+                <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name ?? '' }}</p>
                 <p class="text-xs text-slate-400 truncate">{{ Auth::user()->email ?? '' }}</p>
             </div>
         </div>
