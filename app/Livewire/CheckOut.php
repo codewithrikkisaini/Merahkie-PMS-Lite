@@ -29,13 +29,19 @@ class CheckOut extends Component {
         $totalAmount = $subtotal + $tax;
 
         // Create CheckOut record
-        CheckOutModel::create([
+        $checkoutRecord = CheckOutModel::create([
             'reservation_id' => $reservation->id,
             'checkout_datetime' => $checkOutDate,
             'nights' => $nights,
             'subtotal' => $subtotal,
             'tax' => $tax,
             'total_amount' => $totalAmount,
+        ]);
+
+        // Auto-generate Invoice
+        \App\Models\Invoice::create([
+            'invoice_number' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
+            'checkout_id' => $checkoutRecord->id,
         ]);
 
         // Update reservation status

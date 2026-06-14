@@ -48,6 +48,13 @@
                         <td class="px-6 py-4">
                             <div class="font-medium text-gray-900">Room {{ $res->room->room_number ?? 'N/A' }}</div>
                             <div class="text-xs text-gray-500">{{ $res->room->roomType->name ?? '' }}</div>
+                            @if($res->room && in_array($res->room->status, ['Housekeeping', 'Maintenance', 'Dirty', 'Cleaning']))
+                                <div class="mt-1">
+                                    <span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-semibold rounded-sm bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-triangle mr-1 mt-0.5 text-[10px]"></i> {{ $res->room->status }} Alert
+                                    </span>
+                                </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <div class="text-gray-900"><span class="text-gray-500">In:</span> {{ \Carbon\Carbon::parse($res->check_in_date)->format('M d, Y') }}</div>

@@ -55,14 +55,16 @@
                             @elseif($room->status == 'Occupied')
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i> Occupied</span>
                             @elseif($room->status == 'Maintenance')
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><i class="fas fa-tools mr-1"></i> Maintenance</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><i class="fas fa-tools mr-1"></i> Maintenance</span>
+                            @elseif(in_array($room->status, ['Housekeeping', 'Dirty', 'Cleaning']))
+                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><i class="fas fa-broom mr-1"></i> {{ $room->status }}</span>
                             @else
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ $room->status }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">
                             <button wire:click="edit({{ $room->id }})" class="text-indigo-600 hover:text-indigo-900 p-2"><i class="fas fa-edit"></i></button>
-                            @if(auth()->user()->role->name === 'Admin')
+                            @if(auth()->check() && auth()->user()->role && auth()->user()->role->name === 'Admin')
                             <button wire:click="delete({{ $room->id }})" wire:confirm="Are you sure you want to delete this room?" class="text-red-600 hover:text-red-900 p-2"><i class="fas fa-trash-alt"></i></button>
                             @endif
                         </td>
@@ -138,6 +140,7 @@
                                 <option value="Available">Available</option>
                                 <option value="Occupied">Occupied</option>
                                 <option value="Maintenance">Maintenance</option>
+                                <option value="Housekeeping">Housekeeping</option>
                             </select>
                             @error('status') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
