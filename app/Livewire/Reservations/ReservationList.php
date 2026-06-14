@@ -14,6 +14,7 @@ class ReservationList extends Component
     public $statusFilter = '';
 
     public $isModalOpen = false;
+    public $edit_id = null;
     public $guest_id, $room_id, $check_in_date, $check_out_date, $status = 'Pending';
 
     public function openModal()
@@ -29,11 +30,31 @@ class ReservationList extends Component
 
     private function resetInputFields()
     {
+        $this->edit_id = null;
         $this->guest_id = '';
         $this->room_id = '';
         $this->check_in_date = '';
         $this->check_out_date = '';
         $this->status = 'Pending';
+    }
+
+    public function edit($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+        $this->edit_id = $id;
+        $this->guest_id = $reservation->guest_id;
+        $this->room_id = $reservation->room_id;
+        $this->check_in_date = \Carbon\Carbon::parse($reservation->check_in_date)->format('Y-m-d');
+        $this->check_out_date = \Carbon\Carbon::parse($reservation->check_out_date)->format('Y-m-d');
+        $this->status = $reservation->status;
+
+        $this->isModalOpen = true;
+    }
+
+    public function delete($id)
+    {
+        Reservation::findOrFail($id)->delete();
+        $this->dispatch('toast', message: 'Reservation deleted successfully.', type: 'success');
     }
 
     public function store()
@@ -43,18 +64,30 @@ class ReservationList extends Component
             'room_id' => 'required|exists:rooms,id',
             'check_in_date' => 'required|date',
             'check_out_date' => 'required|date|after:check_in_date',
-            'status' => 'required|in:Pending,Confirmed,Checked-In,Checked-Out,Cancelled',
+            'status' => 'required|in:Pending,Confirmed,Checked In,Checked Out,Cancelled',
         ]);
 
-        Reservation::create([
-            'guest_id' => $this->guest_id,
-            'room_id' => $this->room_id,
-            'check_in_date' => $this->check_in_date,
-            'check_out_date' => $this->check_out_date,
-            'status' => $this->status,
-        ]);
+        if ($this->edit_id) {
+            $reservation = Reservation::findOrFail($this->edit_id);
+            $reservation->update([
+                'guest_id' => $this->guest_id,
+                'room_id' => $this->room_id,
+                'check_in_date' => $this->check_in_date,
+                'check_out_date' => $this->check_out_date,
+                'status' => $this->status,
+            ]);
+            $this->dispatch('toast', message: 'Reservation updated successfully.', type: 'success');
+        } else {
+            Reservation::create([
+                'guest_id' => $this->guest_id,
+                'room_id' => $this->room_id,
+                'check_in_date' => $this->check_in_date,
+                'check_out_date' => $this->check_out_date,
+                'status' => $this->status,
+            ]);
+            $this->dispatch('toast', message: 'Reservation created successfully.', type: 'success');
+        }
 
-        $this->dispatch('toast', message: 'Reservation created successfully.', type: 'success');
         $this->closeModal();
     }
 

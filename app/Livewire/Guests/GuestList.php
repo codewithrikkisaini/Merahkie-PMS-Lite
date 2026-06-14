@@ -13,6 +13,7 @@ class GuestList extends Component
     public $search = '';
     
     public $isModalOpen = false;
+    public $edit_id = null;
     public $name, $email, $phone, $nationality, $passport_number, $address;
 
     public function updatingSearch()
@@ -33,12 +34,33 @@ class GuestList extends Component
 
     private function resetInputFields()
     {
+        $this->edit_id = null;
         $this->name = '';
         $this->email = '';
         $this->phone = '';
         $this->nationality = '';
         $this->passport_number = '';
         $this->address = '';
+    }
+
+    public function edit($id)
+    {
+        $guest = Guest::findOrFail($id);
+        $this->edit_id = $id;
+        $this->name = $guest->name;
+        $this->email = $guest->email;
+        $this->phone = $guest->phone;
+        $this->nationality = $guest->nationality;
+        $this->passport_number = $guest->passport_number;
+        $this->address = $guest->address;
+
+        $this->isModalOpen = true;
+    }
+
+    public function delete($id)
+    {
+        Guest::findOrFail($id)->delete();
+        $this->dispatch('toast', message: 'Guest deleted successfully.', type: 'success');
     }
 
     public function store()
@@ -49,17 +71,30 @@ class GuestList extends Component
             'phone' => 'nullable',
         ]);
 
-        Guest::create([
-            'guest_id' => 'GST-' . strtoupper(substr(uniqid(), -6)),
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'nationality' => $this->nationality,
-            'passport_number' => $this->passport_number,
-            'address' => $this->address,
-        ]);
+        if ($this->edit_id) {
+            $guest = Guest::findOrFail($this->edit_id);
+            $guest->update([
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'nationality' => $this->nationality,
+                'passport_number' => $this->passport_number,
+                'address' => $this->address,
+            ]);
+            $this->dispatch('toast', message: 'Guest updated successfully.', type: 'success');
+        } else {
+            Guest::create([
+                'guest_id' => 'GST-' . strtoupper(substr(uniqid(), -6)),
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'nationality' => $this->nationality,
+                'passport_number' => $this->passport_number,
+                'address' => $this->address,
+            ]);
+            $this->dispatch('toast', message: 'Guest created successfully.', type: 'success');
+        }
 
-        $this->dispatch('toast', message: 'Guest created successfully.', type: 'success');
         $this->closeModal();
     }
 

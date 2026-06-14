@@ -10,6 +10,7 @@ class HousekeepingList extends Component {
     
     public $search = '';
     public $isModalOpen = false;
+    public $edit_id = null;
     public $room_id, $status = 'Dirty', $notes;
 
     public function openModal()
@@ -25,9 +26,27 @@ class HousekeepingList extends Component {
 
     private function resetInputFields()
     {
+        $this->edit_id = null;
         $this->room_id = '';
         $this->status = 'Dirty';
         $this->notes = '';
+    }
+
+    public function edit($id)
+    {
+        $housekeeping = Housekeeping::findOrFail($id);
+        $this->edit_id = $id;
+        $this->room_id = $housekeeping->room_id;
+        $this->status = $housekeeping->status;
+        $this->notes = $housekeeping->notes;
+
+        $this->isModalOpen = true;
+    }
+
+    public function delete($id)
+    {
+        Housekeeping::findOrFail($id)->delete();
+        $this->dispatch('toast', message: 'Task deleted successfully.', type: 'success');
     }
 
     public function store()
@@ -38,18 +57,29 @@ class HousekeepingList extends Component {
             'notes' => 'nullable|string',
         ]);
 
-        Housekeeping::create([
-            'room_id' => $this->room_id,
-            'status' => $this->status,
-            'notes' => $this->notes,
-            'updated_by' => auth()->id(),
-        ]);
+        if ($this->edit_id) {
+            $housekeeping = Housekeeping::findOrFail($this->edit_id);
+            $housekeeping->update([
+                'room_id' => $this->room_id,
+                'status' => $this->status,
+                'notes' => $this->notes,
+                'updated_by' => auth()->id(),
+            ]);
+            $this->dispatch('toast', message: 'Task updated successfully.', type: 'success');
+        } else {
+            Housekeeping::create([
+                'room_id' => $this->room_id,
+                'status' => $this->status,
+                'notes' => $this->notes,
+                'updated_by' => auth()->id(),
+            ]);
+            $this->dispatch('toast', message: 'Task created successfully.', type: 'success');
+        }
 
         if ($this->status == 'Clean') {
             \App\Models\Room::find($this->room_id)->update(['status' => 'Available']);
         }
 
-        $this->dispatch('toast', message: 'Task created successfully.', type: 'success');
         $this->closeModal();
     }
 

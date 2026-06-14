@@ -48,9 +48,9 @@
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <button class="text-blue-600 hover:text-blue-900 p-2"><i class="fas fa-eye"></i></button>
-                            <button class="text-indigo-600 hover:text-indigo-900 p-2"><i class="fas fa-edit"></i></button>
+                            <button wire:click="edit({{ $guest->id }})" class="text-indigo-600 hover:text-indigo-900 p-2"><i class="fas fa-edit"></i></button>
                             @if(auth()->check() && auth()->user()->role && auth()->user()->role->name === 'Admin')
-                            <button class="text-red-600 hover:text-red-900 p-2"><i class="fas fa-trash-alt"></i></button>
+                            <button wire:click="delete({{ $guest->id }})" wire:confirm="Are you sure you want to delete this guest?" class="text-red-600 hover:text-red-900 p-2"><i class="fas fa-trash-alt"></i></button>
                             @endif
                         </td>
                     </tr>
@@ -76,69 +76,59 @@
 
     <!-- Add Guest Modal -->
     @if($isModalOpen)
-    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" wire:click="closeModal"></div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
+                <form wire:submit.prevent="store">
+                    <div class="bg-blue-500 px-4 py-3 flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-white" id="modal-title">
+                            {{ $edit_id ? 'Edit Guest' : 'Add Guest' }}
+                        </h3>
+                        <button type="button" wire:click="closeModal" class="text-white hover:text-gray-200 focus:outline-none">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                        
+                    <div class="bg-white px-6 py-6 space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-bold text-gray-700">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" wire:model="name" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                            @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
 
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <!-- Modal panel -->
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form wire:submit.prevent="store">
-                    <div class="bg-white px-6 py-6">
-                        <div class="mb-4 flex items-center justify-between">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                Add New Guest
-                            </h3>
-                            <button type="button" wire:click="closeModal" class="text-gray-400 hover:text-gray-500">
-                                <i class="fas fa-times"></i>
-                            </button>
+                        <div>
+                            <label for="email" class="block text-sm font-bold text-gray-700">Email</label>
+                            <input type="email" wire:model="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                            @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         
-                        <div class="space-y-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
-                                <input type="text" wire:model="name" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="John Doe">
-                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-bold text-gray-700">Phone</label>
+                            <input type="text" wire:model="phone" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                            @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                <div>
-                                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" wire:model="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="john@example.com">
-                                    @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                                    <input type="text" wire:model="phone" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="+1 234 567 890">
-                                    @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
+                        <div>
+                            <label for="nationality" class="block text-sm font-bold text-gray-700">Nationality</label>
+                            <input type="text" wire:model="nationality" id="nationality" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                        </div>
+                        
+                        <div>
+                            <label for="passport_number" class="block text-sm font-bold text-gray-700">Passport Number</label>
+                            <input type="text" wire:model="passport_number" id="passport_number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1">
+                        </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                <div>
-                                    <label for="nationality" class="block text-sm font-medium text-gray-700">Nationality</label>
-                                    <input type="text" wire:model="nationality" id="nationality" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="e.g. American">
-                                </div>
-                                <div>
-                                    <label for="passport_number" class="block text-sm font-medium text-gray-700">Passport Number</label>
-                                    <input type="text" wire:model="passport_number" id="passport_number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="AB1234567">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                                <textarea wire:model="address" id="address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mt-1" placeholder="Full address..."></textarea>
-                            </div>
+                        <div>
+                            <label for="address" class="block text-sm font-bold text-gray-700">Address</label>
+                            <textarea wire:model="address" id="address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mt-1"></textarea>
                         </div>
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Save
+                    
+                    <div class="bg-white border-t border-gray-100 px-4 py-3 flex justify-end space-x-2">
+                        <button type="button" wire:click="closeModal" class="px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-md hover:bg-gray-600 focus:outline-none transition-colors">
+                            Close
                         </button>
-                        <button type="button" wire:click="closeModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Cancel
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none transition-colors">
+                            Save Guest
                         </button>
                     </div>
                 </form>

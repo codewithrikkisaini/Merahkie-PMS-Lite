@@ -10,6 +10,7 @@ class MaintenanceList extends Component {
     
     public $search = '';
     public $isModalOpen = false;
+    public $edit_id = null;
     public $room_id, $issue, $priority = 'Medium', $status = 'Open';
 
     public function openModal()
@@ -25,10 +26,29 @@ class MaintenanceList extends Component {
 
     private function resetInputFields()
     {
+        $this->edit_id = null;
         $this->room_id = '';
         $this->issue = '';
         $this->priority = 'Medium';
         $this->status = 'Open';
+    }
+
+    public function edit($id)
+    {
+        $ticket = MaintenanceTicket::findOrFail($id);
+        $this->edit_id = $id;
+        $this->room_id = $ticket->room_id;
+        $this->issue = $ticket->issue;
+        $this->priority = $ticket->priority;
+        $this->status = $ticket->status;
+
+        $this->isModalOpen = true;
+    }
+
+    public function delete($id)
+    {
+        MaintenanceTicket::findOrFail($id)->delete();
+        $this->dispatch('toast', message: 'Ticket deleted successfully.', type: 'success');
     }
 
     public function store()
@@ -39,15 +59,26 @@ class MaintenanceList extends Component {
             'priority' => 'required|in:Low,Medium,High,Critical',
         ]);
 
-        MaintenanceTicket::create([
-            'room_id' => $this->room_id,
-            'issue' => $this->issue,
-            'priority' => $this->priority,
-            'status' => $this->status,
-            'reported_by' => auth()->id(),
-        ]);
+        if ($this->edit_id) {
+            $ticket = MaintenanceTicket::findOrFail($this->edit_id);
+            $ticket->update([
+                'room_id' => $this->room_id,
+                'issue' => $this->issue,
+                'priority' => $this->priority,
+                'status' => $this->status,
+            ]);
+            $this->dispatch('toast', message: 'Ticket updated successfully.', type: 'success');
+        } else {
+            MaintenanceTicket::create([
+                'room_id' => $this->room_id,
+                'issue' => $this->issue,
+                'priority' => $this->priority,
+                'status' => $this->status,
+                'reported_by' => auth()->id(),
+            ]);
+            $this->dispatch('toast', message: 'Ticket created successfully.', type: 'success');
+        }
 
-        $this->dispatch('toast', message: 'Ticket created successfully.', type: 'success');
         $this->closeModal();
     }
 
